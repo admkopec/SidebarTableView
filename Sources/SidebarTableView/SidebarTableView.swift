@@ -1,5 +1,11 @@
+//
+//  SidebarTableViewController.swift
+//
+//  Created by Adam Kopeć on 28/06/2021.
+//
 import UIKit
 
+/// A subclass of `UITableView` which makes the TableView look and feel like the iPadOS 14 Sidebar.
 open class SidebarTableView: UITableView {
     
     convenience init() {
@@ -75,6 +81,11 @@ public extension UITableViewCell {
             self.imageView?.image = UIImage(systemName: systemName)
             self.imageView?.highlightedImage = UIImage(systemName: systemName)?.withTintColor(.white, renderingMode: .alwaysOriginal)
         }
+        // Add pointer interactions
+        if #available(iOS 13.4, *), let delegate = (self.superview as? UITableView)?.delegate as? UIPointerInteractionDelegate {
+            let pointerInteraction = UIPointerInteraction(delegate: delegate)
+            self.addInteraction(pointerInteraction)
+        }
         // Set the cell background color
         self.backgroundColor = .secondarySystemBackground
         //
@@ -89,6 +100,17 @@ public extension UITableViewCell {
         // Remove any accessory
         self.accessoryType = .none
 
+        self.backgroundView?.layer.cornerRadius = 10.0
+        self.backgroundView?.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]
+                
+        self.backgroundView?.layer.masksToBounds = true
+        self.backgroundView?.layer.cornerRadius = 10.0
+        self.backgroundView?.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]
+        
+        self.multipleSelectionBackgroundView?.layer.masksToBounds = true
+        self.multipleSelectionBackgroundView?.layer.cornerRadius = 10.0
+        self.multipleSelectionBackgroundView?.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]
+        
         // Set Sidebar style
         let bgView = UIView()
         bgView.backgroundColor = self.tintColor
@@ -98,5 +120,25 @@ public extension UITableViewCell {
         
         self.selectedBackgroundView = bgView
         self.textLabel?.highlightedTextColor = UIColor.white
+    }
+    
+    internal func configureSelection() {
+        // Set Sidebar style
+        let bgView = UIView()
+        bgView.backgroundColor = self.tintColor
+        bgView.layer.masksToBounds = true
+        bgView.layer.cornerRadius = 10.0
+        bgView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]
+        
+        self.selectedBackgroundView = bgView
+        self.textLabel?.highlightedTextColor = UIColor.white
+        self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, renderingMode: .alwaysOriginal)
+    }
+    
+    internal func configureHighlight() {
+        // Set Sidebar style
+        self.selectedBackgroundView = nil
+        self.textLabel?.highlightedTextColor = .gray
+        self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.gray, renderingMode: .alwaysOriginal)
     }
 }
