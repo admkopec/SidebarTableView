@@ -7,6 +7,7 @@
 import UIKit
 
 /// A subclass of `UITableViewController` which makes the TableView look and feel like the iPadOS 14 Sidebar.
+@available(iOS 13.0, *)
 open class SidebarTableViewController: UITableViewController, UIPointerInteractionDelegate {
     // Helper variable
     private var didChange = false
@@ -88,7 +89,7 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
         var pointerStyle: UIPointerStyle? = nil
         if let interactionView = interaction.view {
             let targetedPreview = UITargetedPreview(view: interactionView)
-            pointerStyle = UIPointerStyle(effect: UIPointerEffect.hover(targetedPreview, preferredTintMode: .overlay, prefersShadow: true, prefersScaledContent: true))
+            pointerStyle = UIPointerStyle(effect: .highlight(targetedPreview), shape: .roundedRect(interaction.view?.frame ?? .zero, radius: 10))
         }
         return pointerStyle
     }

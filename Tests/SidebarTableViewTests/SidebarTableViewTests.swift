@@ -1,3 +1,9 @@
+//
+//  SidebarTableViewTests.swift
+//
+//  Created by Adam Kopeć on 28/06/2021.
+//
+
 import XCTest
 @testable import SidebarTableView
 
