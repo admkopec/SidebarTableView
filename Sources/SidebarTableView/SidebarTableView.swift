@@ -84,7 +84,7 @@ public extension UITableViewCell {
             cell.textLabel?.text = "Favourites"
      
             // Configure the cell for Sidebar style
-            cell.configureForSidebar(tableView, withSymbolName: "heart.fill")
+            cell.configureForSidebar(tableView, withSymbolNamed: "heart.fill")
      
             return cell
         } else if indexPath.section == 1 {
@@ -103,7 +103,6 @@ public extension UITableViewCell {
      */
     func configureForSidebar(_ tableView: UITableView, withSymbolNamed systemName: String? = nil) {
         // Get sidebarStyle from SidebarTableView
-        print("UITableViewCell: ", tableView)
         let sidebarStyle = (tableView as? SidebarTableView)?.sidebarStyle ?? .default
         // Set the symbol image
         if let systemName = systemName {
@@ -140,10 +139,7 @@ public extension UITableViewCell {
         
         // Remove any accessory
         self.accessoryType = .none
-
-        self.backgroundView?.layer.cornerRadius = 10.0
-        self.backgroundView?.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]
-                
+        
         self.backgroundView?.layer.masksToBounds = true
         self.backgroundView?.layer.cornerRadius = 10.0
         self.backgroundView?.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]

@@ -10,3 +10,4 @@ An UIKit UITableView implementation of the iPadOS 14 Sidebar.
   * __iOS 13.0+__
   * Row Highlighting
   * Multiple Sections
+  * Compact View Controller fallback on iOS 13

@@ -18,7 +18,7 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
     }
     
     /// The value signifying the selected row, or the row which should be selected on nearest appearance
-    /// You should only change section, as for Sidebar styled ``UITableView`` you can only have one row per section
+    /// You should only change section, as for Sidebar styled `UITableView` you can only have one row per section
     open lazy var lastSelectedRow = IndexPath(row: 0, section: 0)
     
     open override func viewDidLoad() {
