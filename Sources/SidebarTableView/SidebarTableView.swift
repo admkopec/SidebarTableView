@@ -7,7 +7,7 @@ import UIKit
 
 /// A subclass of `UITableView` which makes the TableView look and feel like the iPadOS 14 Sidebar.
 @IBDesignable
-@available(iOS 13.0, *)
+@available(iOS 11.0, *)
 open class SidebarTableView: UITableView {
     /// The sidebar selection style
     private var sidebarSelectionStyle: SidebarStyle = .default
@@ -23,28 +23,44 @@ open class SidebarTableView: UITableView {
     }
     
     convenience init() {
-        self.init(frame: .zero, style: .insetGrouped)
+        if #available(iOS 13.0, *) {
+            self.init(frame: .zero, style: .insetGrouped)
+        } else {
+            self.init(frame: .zero, style: .grouped)
+        }
     }
     
     convenience init(frame: CGRect) {
-        self.init(frame: frame, style: .insetGrouped)
+        if #available(iOS 13.0, *) {
+            self.init(frame: frame, style: .insetGrouped)
+        } else {
+            self.init(frame: frame, style: .grouped)
+        }
     }
     
     override init(frame: CGRect, style: UITableView.Style) {
-        super.init(frame: frame, style: .insetGrouped)
+        if #available(iOS 13.0, *) {
+            super.init(frame: frame, style: .insetGrouped)
+        } else {
+            super.init(frame: frame, style: .grouped)
+        }
         commonInit()
     }
     
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        if self.style != .insetGrouped {
+        if self.style == .plain {
             fatalError("SidebarTableView: Make sure the table view style is set to \"Inset Grouped\" in Interface Builder")
         }
         commonInit()
     }
     /// Perform common initialisation operations
     private func commonInit() {
-        self.backgroundColor = .secondarySystemBackground
+        if #available(iOS 13.0, *) {
+            self.backgroundColor = .secondarySystemBackground
+        } else {
+            self.backgroundColor = .groupTableViewBackground
+        }
         self.separatorColor = .clear
         self.separatorStyle = .none
     }
@@ -54,10 +70,50 @@ open class SidebarTableView: UITableView {
         cell?.configureForSidebar(self)
         return cell
     }
+    open override func didAddSubview(_ subview: UIView) {
+        super.didAddSubview(subview)
+        guard let cell = subview as? UITableViewCell else { return }
+        cell.configureForSidebar(self)
+    }
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        subviews.compactMap({ $0 as? UITableViewCell }).forEach { cell in
+            // TODO: Add margins if not inset grouped
+            if self.style == .grouped {
+                self.performInsetLayout(for: cell)
+            }
+        }
+    }
+    /// Configure cell for Inset-Groupping on regulary grouped table view
+    private func performInsetLayout(for view: UIView) {
+        var frame = view.frame;
+        let margins = self.layoutMargins;
+        let safeAreaInsets = self.safeAreaInsets;
+        
+        // Calculate the left margin.
+        // If the margin on its own isn't larger than
+        // the safe area inset, combine the two.
+        var leftInset = margins.left;
+        if (leftInset - safeAreaInsets.left < 0) {
+            leftInset += safeAreaInsets.left;
+        }
+        
+        // Calculate the right margin with the same logic.
+        var rightInset = margins.right;
+        if (rightInset - safeAreaInsets.right < 0) {
+            rightInset += safeAreaInsets.right;
+        }
+        
+        // Calculate offset and width off the insets
+        frame.origin.x = leftInset;
+        frame.size.width = self.frame.width - (leftInset + rightInset);
+        
+        view.layer.frame = frame
+    }
 }
 
 /// Specifies the sidebar selection style
-@available(iOS 13.0, *) @objc
+@available(iOS 11.0, *) @objc
 public enum SidebarStyle: Int {
     /// The sidebar will choose the default style based on iOS version
     case `default`
@@ -67,7 +123,7 @@ public enum SidebarStyle: Int {
     case minimal
 }
 
-@available(iOS 13.0, *)
+@available(iOS 11.0, *)
 public extension UITableViewCell {
     /**
      The function configures the provided cell for correct iPadOS 14 Sidebar-like look. Call this function for each cell you initialise to achieve the desired, rounded, look.
@@ -101,23 +157,70 @@ public extension UITableViewCell {
      }
      ```
      */
-    func configureForSidebar(_ tableView: UITableView, withSymbolNamed systemName: String? = nil) {
+    @available(iOS 13.0, *)
+    func configureForSidebar(_ tableView: UITableView, withSymbolNamed systemName: String) {
+        // Set the symbol image
+        self.configureForSidebar(tableView, withImage: UIImage(systemName: systemName))
+    }
+    /**
+     The function configures the provided cell for correct iPadOS 14 Sidebar-like look. Call this function for each cell you initialise to achieve the desired, rounded, look.
+     
+     - parameter tableView: The ``UITableView`` for which the cell should be configured.
+     - parameter image: The ``UIImage``, which should be used as the image in cell's ``UITableViewCell.imageView``. This has to be a template image.
+     - important: This function has to be called for each cell you initialize!
+     
+     ```swift
+     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+         if indexPath.section == 0 {
+            // Set up the first cell, only one per section!
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            cell.textLabel?.text = "Favourites"
+     
+            // Configure the cell for Sidebar style
+            cell.configureForSidebar(tableView, withImage: UIImage(systemName: "heart.fill"))
+     
+            return cell
+        } else if indexPath.section == 1 {
+            // Set up the next cell
+            let cell_1 = tableView.dequeueReusableCell(withIdentifier: "cell_1", for: indexPath)
+            cell_1.textLabel?.text = "Text Only"
+
+            // Configure the cell for Sidebar style
+            cell_1.configureForSidebar(tableView)
+
+            return cell_1
+        }
+        ...
+     }
+     ```
+     */
+    func configureForSidebar(_ tableView: UITableView, withImage image: UIImage? = nil) {
         // Get sidebarStyle from SidebarTableView
         let sidebarStyle = (tableView as? SidebarTableView)?.sidebarStyle ?? .default
         // Set the symbol image
-        if let systemName = systemName {
-            self.imageView?.image = UIImage(systemName: systemName)
+        if let image = image {
+            self.imageView?.image = image
             // Set proper highlight image based on sidebarStyle
             switch sidebarStyle {
             case .prominent:
-                self.imageView?.highlightedImage = UIImage(systemName: systemName)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+                if #available(iOS 13.0, *) {
+                    self.imageView?.highlightedImage = image.withTintColor(.white, renderingMode: .alwaysOriginal)
+                } else {
+                    let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
+                    self.imageView?.highlightedImage = image.withTintColor(.white, width: size.width, height: size.height)
+                }
             case .minimal:
-                self.imageView?.highlightedImage = UIImage(systemName: systemName)
+                self.imageView?.highlightedImage = image
             case .default:
                 if #available(iOS 15.0, *) {
-                    self.imageView?.highlightedImage = UIImage(systemName: systemName)
+                    self.imageView?.highlightedImage = image
                 } else {
-                    self.imageView?.highlightedImage = UIImage(systemName: systemName)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+                    if #available(iOS 13.0, *) {
+                        self.imageView?.highlightedImage = image.withTintColor(.white, renderingMode: .alwaysOriginal)
+                    } else {
+                        let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
+                        self.imageView?.highlightedImage = image.withTintColor(.white, width: size.width, height: size.height)
+                    }
                 }
             }
         }
@@ -127,7 +230,12 @@ public extension UITableViewCell {
             self.addInteraction(pointerInteraction)
         }
         // Set the cell background color
-        self.backgroundColor = .secondarySystemBackground
+        if #available(iOS 13.0, *) {
+            self.backgroundColor = .secondarySystemBackground
+        } else {
+            // Fallback on earlier versions
+            self.backgroundColor = .groupTableViewBackground
+        }
         //
         self.layer.masksToBounds = true
         
@@ -157,7 +265,11 @@ public extension UITableViewCell {
             self.textLabel?.highlightedTextColor = UIColor.white
         case .minimal:
             bgView.backgroundColor = UIColor.lightGray
-            self.textLabel?.highlightedTextColor = UIColor.label
+            if #available(iOS 13.0, *) {
+                self.textLabel?.highlightedTextColor = UIColor.label
+            } else {
+                self.textLabel?.highlightedTextColor = UIColor.black
+            }
         case .default:
             if #available(iOS 15.0, *) {
                 bgView.backgroundColor = UIColor.systemFill
@@ -185,10 +297,19 @@ public extension UITableViewCell {
         case .prominent:
             bgView.backgroundColor = self.tintColor
             self.textLabel?.highlightedTextColor = UIColor.white
-            self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            if #available(iOS 13.0, *) {
+                self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            } else {
+                let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
+                self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, width: size.width, height: size.height)
+            }
         case .minimal:
             bgView.backgroundColor = UIColor.lightGray
-            self.textLabel?.highlightedTextColor = UIColor.label
+            if #available(iOS 13.0, *) {
+                self.textLabel?.highlightedTextColor = UIColor.label
+            } else {
+                self.textLabel?.highlightedTextColor = UIColor.black
+            }
             self.imageView?.highlightedImage = self.imageView?.image
         case .default:
             if #available(iOS 15.0, *) {
@@ -198,7 +319,12 @@ public extension UITableViewCell {
             } else {
                 bgView.backgroundColor = self.tintColor
                 self.textLabel?.highlightedTextColor = UIColor.white
-                self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, renderingMode: .alwaysOriginal)
+                if #available(iOS 13.0, *) {
+                    self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, renderingMode: .alwaysOriginal)
+                } else {
+                    let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
+                    self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, width: size.width, height: size.height)
+                }
             }
         }
         
@@ -212,8 +338,19 @@ public extension UITableViewCell {
     internal func configureHighlight() {
         // Set Sidebar style
         self.selectedBackgroundView = nil
-        self.textLabel?.highlightedTextColor = .systemGray2
-        self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.systemGray2, renderingMode: .alwaysOriginal)
+        if #available(iOS 13.0, *) {
+            self.textLabel?.highlightedTextColor = .systemGray2
+            self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.systemGray2, renderingMode: .alwaysOriginal)
+        } else {
+            let systemGray2 = UIColor(red: 174.0, green: 174.0, blue: 178.0, alpha: 1.0)
+            self.textLabel?.highlightedTextColor = systemGray2
+            if #available(iOS 13.0, *) {
+                self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(systemGray2, renderingMode: .alwaysOriginal)
+            } else {
+                let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
+                self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(systemGray2, width: size.width, height: size.height)
+            }
+        }
     }
     
     private var tableView: UITableView? {
@@ -222,5 +359,22 @@ public extension UITableViewCell {
             superview = view.superview
         }
         return superview as? UITableView
+    }
+}
+
+fileprivate extension UIImage {
+    // For iOS 11 - iOS 12
+    func withTintColor(_ color: UIColor, width: CGFloat, height: CGFloat) -> UIImage? {
+        let drawRect = CGRect(x: 0, y: 0, width: width, height: height)
+        let imageView = UIImageView(frame: drawRect)
+        imageView.image = self.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = color
+
+        UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, imageView.isOpaque, 0.0)
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+        imageView.layer.render(in: context)
+        let tintedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return tintedImage
     }
 }

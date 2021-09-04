@@ -7,7 +7,7 @@ An UIKit UITableView implementation of the iPadOS 14 Sidebar.
 ## Supports:
   * __Dark mode__
   * __SF Symbols__
-  * __iOS 13.0+__
+  * __iOS 11.0+__
   * Row Highlighting
   * Multiple Sections
-  * Compact View Controller fallback on iOS 13
+  * Compact View Controller fallback on iOS 11 through iOS 13
