@@ -22,7 +22,8 @@ open class AdaptableSplitViewController: UISplitViewController, UISplitViewContr
     override public func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
-        self.viewControllers.last?.navigationItem.leftBarButtonItem = self.displayModeButtonItem
+        let controller = (self.viewControllers.last as? UINavigationController)?.topViewController ?? self.viewControllers.last
+        controller?.navigationItem.leftBarButtonItem = self.displayModeButtonItem
     }
     // TODO: Collapse onto UITabBarController when compact size
     public func primaryViewController(forCollapsing splitViewController: UISplitViewController) -> UIViewController? {

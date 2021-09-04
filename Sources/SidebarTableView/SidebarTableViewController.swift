@@ -120,4 +120,12 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
         tableView.cellForRow(at: indexPath)?.configureSelection()
         return indexPath
     }
+    
+    // MARK: - Segues
+    
+    open override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        let controller = (segue.destination as? UINavigationController)?.topViewController ?? segue.destination
+        controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+    }
 }
