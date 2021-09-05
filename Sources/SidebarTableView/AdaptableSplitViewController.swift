@@ -3,10 +3,13 @@
 //
 //  Created by Adam Kopeć on 01/09/2021.
 //
+//  Licensed under the MIT License
+//
 
 import UIKit
 
 @IBDesignable
+@available(iOS 11.0, *)
 open class AdaptableSplitViewController: UISplitViewController, UISplitViewControllerDelegate {
     /// The storyboard restoration identifier of a compact view controller
     @IBInspectable
@@ -31,9 +34,10 @@ open class AdaptableSplitViewController: UISplitViewController, UISplitViewContr
             return splitViewController.viewController(for: .compact)
         } else {
             // Fallback on earlier versions
-            // TODO: Return a compact view controller
+            // Set primary and secondary view controllers
             primaryViewController = splitViewController.viewControllers.first
             secondaryViewController = splitViewController.viewControllers.dropFirst().first
+            // Return a compact view controller
             return compactViewController
         }
     }
@@ -53,7 +57,7 @@ open class AdaptableSplitViewController: UISplitViewController, UISplitViewContr
             return splitViewController.viewController(for: .secondary)
         } else {
             // Fallback on earlier versions
-            // TODO: Return a secondary view controller
+            // Return a secondary view controller
             return self.secondaryViewController
         }
     }

@@ -3,6 +3,9 @@
 //
 //  Created by Adam Kopeć on 28/06/2021.
 //
+//  Licensed under the MIT License
+//
+
 import UIKit
 
 /// A subclass of `UITableView` which makes the TableView look and feel like the iPadOS 14 Sidebar.
@@ -121,6 +124,17 @@ public enum SidebarStyle: Int {
     case prominent
     /// The sidebar will use a light gray color to highlight selection. This is the default sidebar style on iPadOS 15
     case minimal
+    /// The sidebar style which should be used (resolving default style)
+    internal var resolvedStyle: SidebarStyle {
+        if self == .default {
+            if #available(iOS 15.0, *) {
+                return .minimal
+            } else {
+                return .prominent
+            }
+        }
+        return self
+    }
 }
 
 @available(iOS 11.0, *)
@@ -201,7 +215,7 @@ public extension UITableViewCell {
         if let image = image {
             self.imageView?.image = image
             // Set proper highlight image based on sidebarStyle
-            switch sidebarStyle {
+            switch sidebarStyle.resolvedStyle {
             case .prominent:
                 if #available(iOS 13.0, *) {
                     self.imageView?.highlightedImage = image.withTintColor(.white, renderingMode: .alwaysOriginal)
@@ -212,16 +226,7 @@ public extension UITableViewCell {
             case .minimal:
                 self.imageView?.highlightedImage = image
             case .default:
-                if #available(iOS 15.0, *) {
-                    self.imageView?.highlightedImage = image
-                } else {
-                    if #available(iOS 13.0, *) {
-                        self.imageView?.highlightedImage = image.withTintColor(.white, renderingMode: .alwaysOriginal)
-                    } else {
-                        let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
-                        self.imageView?.highlightedImage = image.withTintColor(.white, width: size.width, height: size.height)
-                    }
-                }
+                fatalError()
             }
         }
         // Add pointer interactions
@@ -259,25 +264,21 @@ public extension UITableViewCell {
         // Set Sidebar style
         let bgView = UIView()
         
-        switch sidebarStyle {
+        switch sidebarStyle.resolvedStyle {
         case .prominent:
             bgView.backgroundColor = self.tintColor
             self.textLabel?.highlightedTextColor = UIColor.white
         case .minimal:
-            bgView.backgroundColor = UIColor.lightGray
             if #available(iOS 13.0, *) {
-                self.textLabel?.highlightedTextColor = UIColor.label
-            } else {
-                self.textLabel?.highlightedTextColor = UIColor.black
-            }
-        case .default:
-            if #available(iOS 15.0, *) {
                 bgView.backgroundColor = UIColor.systemFill
                 self.textLabel?.highlightedTextColor = UIColor.label
             } else {
-                bgView.backgroundColor = self.tintColor
-                self.textLabel?.highlightedTextColor = UIColor.white
+                let systemFill =  UIColor(red: 120.0, green: 120.0, blue: 128.0, alpha: 0.2)
+                bgView.backgroundColor = systemFill
+                self.textLabel?.highlightedTextColor = UIColor.black
             }
+        case .default:
+            fatalError()
         }
         
         bgView.layer.masksToBounds = true
@@ -293,7 +294,7 @@ public extension UITableViewCell {
         // Set Sidebar style
         let bgView = UIView()
         
-        switch sidebarStyle {
+        switch sidebarStyle.resolvedStyle {
         case .prominent:
             bgView.backgroundColor = self.tintColor
             self.textLabel?.highlightedTextColor = UIColor.white
@@ -304,28 +305,17 @@ public extension UITableViewCell {
                 self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, width: size.width, height: size.height)
             }
         case .minimal:
-            bgView.backgroundColor = UIColor.lightGray
             if #available(iOS 13.0, *) {
+                bgView.backgroundColor = UIColor.systemFill
                 self.textLabel?.highlightedTextColor = UIColor.label
             } else {
+                let systemFill =  UIColor(red: 120.0, green: 120.0, blue: 128.0, alpha: 0.2)
+                bgView.backgroundColor = systemFill
                 self.textLabel?.highlightedTextColor = UIColor.black
             }
             self.imageView?.highlightedImage = self.imageView?.image
         case .default:
-            if #available(iOS 15.0, *) {
-                bgView.backgroundColor = UIColor.systemFill
-                self.textLabel?.highlightedTextColor = UIColor.label
-                self.imageView?.highlightedImage = self.imageView?.image
-            } else {
-                bgView.backgroundColor = self.tintColor
-                self.textLabel?.highlightedTextColor = UIColor.white
-                if #available(iOS 13.0, *) {
-                    self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, renderingMode: .alwaysOriginal)
-                } else {
-                    let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
-                    self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.white, width: size.width, height: size.height)
-                }
-            }
+            fatalError()
         }
         
         bgView.layer.masksToBounds = true
@@ -337,7 +327,21 @@ public extension UITableViewCell {
     
     internal func configureHighlight() {
         // Set Sidebar style
-        self.selectedBackgroundView = nil
+        if self.isSelected {
+            let sidebarStyle = (self.tableView as? SidebarTableView)?.sidebarStyle ?? .default
+            switch sidebarStyle.resolvedStyle {
+            case .prominent:
+                self.selectedBackgroundView?.backgroundColor = self.selectedBackgroundView?.backgroundColor?.withAlphaComponent(0.5)
+                return
+            case .minimal :
+                self.selectedBackgroundView?.backgroundColor = self.selectedBackgroundView?.backgroundColor?.withAlphaComponent(0.1)
+                // TODO: Make sure `self.imageView?.highlightedImage` has proper `systemGray2` tint
+            case .default:
+                fatalError()
+            }
+        } else {
+            self.selectedBackgroundView = nil
+        }
         if #available(iOS 13.0, *) {
             self.textLabel?.highlightedTextColor = .systemGray2
             self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(.systemGray2, renderingMode: .alwaysOriginal)

@@ -3,6 +3,8 @@
 //  
 //  Created by Adam Kopeć on 28/06/2021.
 //
+//  Licensed under the MIT License
+//
 
 import UIKit
 
@@ -113,6 +115,12 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
     open override func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
         // Reconfigure the cell once more, to make sure we didn't lose any settings
         tableView.cellForRow(at: indexPath)?.configureHighlight()
+    }
+    
+    open override func tableView(_ tableView: UITableView, didUnhighlightRowAt indexPath: IndexPath) {
+        // Drop the highlight
+        let cell = tableView.cellForRow(at: indexPath)
+        cell?.configureForSidebar(tableView, withImage: cell?.imageView?.image)
     }
     
     open override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
