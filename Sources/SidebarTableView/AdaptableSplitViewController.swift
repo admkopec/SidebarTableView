@@ -28,7 +28,7 @@ open class AdaptableSplitViewController: UISplitViewController, UISplitViewContr
         let controller = (viewControllers.last as? UINavigationController)?.topViewController ?? viewControllers.last
         controller?.navigationItem.leftBarButtonItem = self.displayModeButtonItem
     }
-    // TODO: Collapse onto UITabBarController when compact size
+    // Collapse onto compactViewController when compact size
     public func primaryViewController(forCollapsing splitViewController: UISplitViewController) -> UIViewController? {
         if #available(iOS 14.0, *) {
             return splitViewController.viewController(for: .compact)

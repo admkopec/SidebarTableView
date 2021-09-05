@@ -73,15 +73,17 @@ open class SidebarTableView: UITableView {
         cell?.configureForSidebar(self)
         return cell
     }
+    /// Configure after adding to view
     open override func didAddSubview(_ subview: UIView) {
         super.didAddSubview(subview)
         guard let cell = subview as? UITableViewCell else { return }
         cell.configureForSidebar(self)
     }
+    /// Add margins if not inset grouped
     open override func layoutSubviews() {
         super.layoutSubviews()
         subviews.compactMap({ $0 as? UITableViewCell }).forEach { cell in
-            // TODO: Add margins if not inset grouped
+            // TODO: Fix improper margins of inner cell content when layout changes (eg. after rotation)
             if self.style == .grouped {
                 self.performInsetLayout(for: cell)
             }
@@ -226,7 +228,7 @@ public extension UITableViewCell {
             case .minimal:
                 self.imageView?.highlightedImage = image
             case .default:
-                fatalError()
+                fatalError("Resolved style can't return default")
             }
         }
         // Add pointer interactions
@@ -278,7 +280,7 @@ public extension UITableViewCell {
                 self.textLabel?.highlightedTextColor = UIColor.black
             }
         case .default:
-            fatalError()
+            fatalError("Resolved style can't return default")
         }
         
         bgView.layer.masksToBounds = true
@@ -315,7 +317,7 @@ public extension UITableViewCell {
             }
             self.imageView?.highlightedImage = self.imageView?.image
         case .default:
-            fatalError()
+            fatalError("Resolved style can't return default")
         }
         
         bgView.layer.masksToBounds = true
@@ -337,7 +339,7 @@ public extension UITableViewCell {
                 self.selectedBackgroundView?.backgroundColor = self.selectedBackgroundView?.backgroundColor?.withAlphaComponent(0.1)
                 // TODO: Make sure `self.imageView?.highlightedImage` has proper `systemGray2` tint
             case .default:
-                fatalError()
+                fatalError("Resolved style can't return default")
             }
         } else {
             self.selectedBackgroundView = nil
