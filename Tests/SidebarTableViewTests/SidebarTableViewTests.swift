@@ -3,6 +3,8 @@
 //
 //  Created by Adam Kopeć on 28/06/2021.
 //
+//  Licensed under the MIT License
+//
 
 import XCTest
 @testable import SidebarTableView
