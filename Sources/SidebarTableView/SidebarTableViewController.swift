@@ -9,7 +9,7 @@
 import UIKit
 
 /// A subclass of `UITableViewController` which makes the TableView look and feel like the iPadOS 14 Sidebar.
-@available(iOS 13.0, *)
+@available(iOS 11.0, *)
 open class SidebarTableViewController: UITableViewController, UIPointerInteractionDelegate {
     // Helper variable
     private var didChange = false
