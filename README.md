@@ -9,15 +9,20 @@ This framework is an _UITableView_ implementation of the __iPadOS 14 Sidebar__. 
 
 ## 💻 Requirements
 This framework works on iPhones and iPads with the minimum system requirements:
-* 📱 iOS 11.0+
-
-## Supports:
+  * 📱 iOS 11.0+
+  
+## ⚙️ Supports:
   * __Dark mode__
   * __SF Symbols__
   * __iOS 11.0+__
   * Row Highlighting
   * Multiple Table Sections
   * Compact View Controller fallback on iOS 11 through iOS 13
+  
+## 🏗 TO-DO:
+  [ ] Fix Navigation Bar's background color on iOS 13 before segue selection
+  [ ] Fix inner cell layout margins after rotation on iOS 11-12
+  [ ] Fix cell image highlight tint when selected on minimal styling
   
 ## 📖 Usage
 To use this framework you can either setup the master detail project in Xcode using the storyboard or by creating each view manually. Remember however to inherit not from _UITableViewController_ but from _SidebarTableViewController_ which is provided by this framework. If you wish to use the compact view controller fallback on iOS versions prior to iOS 14, you should also replace the default _UISplitViewController_ with our custom _AdaptableSplitViewController_ in the storyboard.
