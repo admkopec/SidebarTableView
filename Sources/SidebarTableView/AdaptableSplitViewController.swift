@@ -25,8 +25,16 @@ open class AdaptableSplitViewController: UISplitViewController, UISplitViewContr
     override public func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
-        let controller = (viewControllers.last as? UINavigationController)?.topViewController ?? viewControllers.last
-        controller?.navigationItem.leftBarButtonItem = self.displayModeButtonItem
+        if #available(iOS 14.0, *) { } else {
+            let controller = (viewControllers.last as? UINavigationController)?.topViewController ?? viewControllers.last
+            controller?.navigationItem.leftBarButtonItem = self.displayModeButtonItem
+            // Set primary and secondary view controllers
+            primaryViewController = self.viewControllers.first
+            secondaryViewController = self.viewControllers.dropFirst().first
+            if self.traitCollection.horizontalSizeClass == .compact, let vc = compactViewController {
+                self.viewControllers = [vc]
+            }
+        }
     }
     // Collapse onto compactViewController when compact size
     public func primaryViewController(forCollapsing splitViewController: UISplitViewController) -> UIViewController? {
@@ -34,9 +42,11 @@ open class AdaptableSplitViewController: UISplitViewController, UISplitViewContr
             return splitViewController.viewController(for: .compact)
         } else {
             // Fallback on earlier versions
-            // Set primary and secondary view controllers
-            primaryViewController = splitViewController.viewControllers.first
-            secondaryViewController = splitViewController.viewControllers.dropFirst().first
+            if splitViewController.viewControllers.count >= 2 {
+                // Set primary and secondary view controllers
+                primaryViewController = splitViewController.viewControllers.first
+                secondaryViewController = splitViewController.viewControllers.dropFirst().first
+            }
             // Return a compact view controller
             return compactViewController
         }
