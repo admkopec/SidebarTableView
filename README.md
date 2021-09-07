@@ -22,6 +22,7 @@ This framework works on iPhones and iPads with the minimum system requirements:
 ## 🏗 TO-DO:
   - [ ] Fix Navigation Bar's background color on iOS 13 before segue selection
   - [ ] Fix inner cell layout margins after rotation on iOS 11-12
+  - [ ] Fix navigation bar background and distance to first cell on iOS 11-12
   - [ ] Fix cell image highlight tint when selected on minimal styling
   
 ## 📖 Usage
