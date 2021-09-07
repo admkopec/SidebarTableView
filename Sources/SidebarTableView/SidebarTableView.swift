@@ -368,6 +368,18 @@ public extension UITableViewCell {
     }
 }
 
+extension UITableViewCell {
+    open override func tintColorDidChange() {
+        super.tintColorDidChange()
+        // Get sidebarStyle from SidebarTableView
+        let sidebarStyle = (self.tableView as? SidebarTableView)?.sidebarStyle ?? .default
+        if sidebarStyle.resolvedStyle == .prominent {
+            // Update selected background with new tint color
+            self.selectedBackgroundView?.backgroundColor = self.tintColor
+        }
+    }
+}
+
 fileprivate extension UIImage {
     // For iOS 11 - iOS 12
     func withTintColor(_ color: UIColor, width: CGFloat, height: CGFloat) -> UIImage? {
