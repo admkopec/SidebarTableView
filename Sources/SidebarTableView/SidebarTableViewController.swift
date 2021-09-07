@@ -12,6 +12,7 @@ import UIKit
 @available(iOS 11.0, *)
 open class SidebarTableViewController: UITableViewController, UIPointerInteractionDelegate {
     // Helper variable
+    private var isLoadingTable = true
     private var didChange = false
     
     /// Value on which we decide if we're currently in split view presentation
@@ -127,6 +128,15 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
         // Configure for regular selection
         tableView.cellForRow(at: indexPath)?.configureSelection()
         return indexPath
+    }
+    
+    open override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if #available(iOS 13.0, *) { } else if isLoadingTable && lastSelectedRow == indexPath {
+            isLoadingTable = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
+                tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+            }
+        }
     }
     
     // MARK: - Segues
