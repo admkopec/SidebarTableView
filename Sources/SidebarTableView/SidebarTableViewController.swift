@@ -37,6 +37,11 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
         tableView.dataSource = self
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.renewLastSelection), name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+        // Configure navigationBar on Pre-iOS 13 to match sidebar appearance
+        if #available(iOS 13.0, *) { } else {
+            self.navigationController?.navigationBar.shadowImage = UIImage()
+        }
     }
     
     open override func viewLayoutMarginsDidChange() {
@@ -136,6 +141,39 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
                 tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
             }
+        }
+    }
+    
+    // MARK: - Height Adjustments for iPadOS 14 Sidebar-like Layout on Pre-iOS 13
+    
+    open override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if #available(iOS 13.0, *) { return super.tableView(tableView, heightForHeaderInSection: section) }
+        guard section == 0 else { return super.tableView(tableView, heightForHeaderInSection: section) }
+        return 1.0
+    }
+    
+    open override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if #available(iOS 13.0, *) { return super.tableView(tableView, viewForHeaderInSection: section) }
+        guard section == 0 else { return super.tableView(tableView, viewForHeaderInSection: section) }
+        return UIView(frame: .zero)
+    }
+    
+    // MARK: - Scroll View Delegate for navigation bar adjustments on Pre-iOS 13
+    
+    open override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if #available(iOS 13.0, *) { return }
+        let navigationBar = self.navigationController!.navigationBar
+        print(scrollView.bounds.origin.y)
+        if scrollView.bounds.origin.y > -80 {
+            navigationBar.barTintColor = nil
+            navigationBar.shadowImage = nil
+        } else {
+            if #available(iOS 13.0, *) {
+                navigationBar.barTintColor = .secondarySystemBackground
+            } else {
+                navigationBar.barTintColor = .groupTableViewBackground
+            }
+            navigationBar.shadowImage = UIImage()
         }
     }
     
