@@ -350,12 +350,8 @@ public extension UITableViewCell {
         } else {
             let systemGray2 = UIColor(red: 174.0, green: 174.0, blue: 178.0, alpha: 1.0)
             self.textLabel?.highlightedTextColor = systemGray2
-            if #available(iOS 13.0, *) {
-                self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(systemGray2, renderingMode: .alwaysOriginal)
-            } else {
-                let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
-                self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(systemGray2, width: size.width, height: size.height)
-            }
+            let size = self.imageView?.bounds.size ?? CGSize(width: 64, height: 64)
+            self.imageView?.highlightedImage = self.imageView?.image?.withTintColor(systemGray2, width: size.width, height: size.height)
         }
     }
     
