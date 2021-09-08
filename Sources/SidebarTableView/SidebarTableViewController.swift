@@ -163,7 +163,6 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
     open override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if #available(iOS 13.0, *) { return }
         let navigationBar = self.navigationController!.navigationBar
-        print(scrollView.bounds.origin.y)
         if scrollView.bounds.origin.y > -80 {
             navigationBar.barTintColor = nil
             navigationBar.shadowImage = nil
