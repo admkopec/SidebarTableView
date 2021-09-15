@@ -15,11 +15,6 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
     private var isLoadingTable = true
     private var didChange = false
     
-    /// Value on which we decide if we're currently in split view presentation
-    private var isInSplitViewPresentation: Bool {
-        return !(splitViewController?.isCollapsed ?? true)
-    }
-    
     /// The value signifying the selected row, or the row which should be selected on nearest appearance
     /// You should only change section, as for Sidebar styled `UITableView` you can only have one row per section
     open lazy var lastSelectedRow = IndexPath(row: 0, section: 0)
@@ -85,8 +80,10 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
     
     /// Function which selects the indexPath specified in ``lastSelectedRow``
     @objc private func renewLastSelection() {
-        if isInSplitViewPresentation && tableView.indexPathForSelectedRow == nil {
+        if tableView.indexPathForSelectedRow == nil {
             tableView?.selectRow(at: lastSelectedRow, animated: false, scrollPosition: .none)
+        } else {
+            tableView.cellForRow(at: tableView.indexPathForSelectedRow!)?.configureSelection()
         }
     }
     
