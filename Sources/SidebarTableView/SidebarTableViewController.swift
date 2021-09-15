@@ -177,6 +177,7 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
     
     open override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
+        if #available(iOS 14.0, *) { return }
         let controller = (segue.destination as? UINavigationController)?.topViewController ?? segue.destination
         controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
     }
