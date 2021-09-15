@@ -13,7 +13,7 @@ import UIKit
 open class SidebarTableViewController: UITableViewController, UIPointerInteractionDelegate {
     // Helper variable
     private var isLoadingTable = true
-    private var didChange = false
+    private var didChange = true
     
     /// The value signifying the selected row, or the row which should be selected on nearest appearance
     /// You should only change section, as for Sidebar styled `UITableView` you can only have one row per section
