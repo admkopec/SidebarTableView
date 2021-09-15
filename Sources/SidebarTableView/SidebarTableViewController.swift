@@ -133,7 +133,7 @@ open class SidebarTableViewController: UITableViewController, UIPointerInteracti
     }
     
     open override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if isLoadingTable && lastSelectedRow == indexPath {
+        if #available(iOS 13.0, *) { } else if isLoadingTable && lastSelectedRow == indexPath {
             isLoadingTable = false
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3)) {
                 tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
